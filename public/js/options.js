@@ -12,29 +12,57 @@
 $(function () {
 
     // jQuery selects
-    var $optionsPanel = $('#options-panel');
-    var $hotelSelect = $optionsPanel.find('#hotel-choices');
-    var $restaurantSelect = $optionsPanel.find('#restaurant-choices');
-    var $activitySelect = $optionsPanel.find('#activity-choices');
+    const $optionsPanel = $('#options-panel');
+    const $hotelSelect = $optionsPanel.find('#hotel-choices');
+    const $restaurantSelect = $optionsPanel.find('#restaurant-choices');
+    const $activitySelect = $optionsPanel.find('#activity-choices');
+
+    const getAttractions = function(type) {
+      return $.ajax({
+        method: 'GET',
+        url: `/api/${type}`
+      })
+    }
+    
+    Promise.all([
+      getAttractions('hotels'),
+      getAttractions('restaurants'),
+      getAttractions('activities')
+    ])
+    .then((attractions) => {
+      const hotels = attractions[0];
+      const restaurants = attractions[1];
+      const activities = attractions[2];
+
+      // Render that shit
+      hotels.forEach(makeOption, $hotelSelect);
+      restaurants.forEach(makeOption, $restaurantSelect);
+      activities.forEach(makeOption, $activitySelect);
+
+      attractionsModule.loadEnhancedAttractions('hotels', hotels);
+      attractionsModule.loadEnhancedAttractions('restaurants', restaurants);
+      attractionsModule.loadEnhancedAttractions('activities', activities);
+    })
+    .catch(console.error)
 
   // ~~~~~~~~~~~~~~~~~~~~~~~
     // This looks like a great place to start AJAX work with a request for all attractions. Don't forget that these kinds of requests are async, so we won't have all of the attractions until it comes back, but once it comes back we can make the option tags
   // ~~~~~~~~~~~~~~~~~~~~~~~
 
     // make all the option tags (second arg of `forEach` is a `this` binding)
-    hotels.forEach(makeOption, $hotelSelect);
-    restaurants.forEach(makeOption, $restaurantSelect);
-    activities.forEach(makeOption, $activitySelect);
+//    hotels.forEach(makeOption, $hotelSelect);
+//    restaurants.forEach(makeOption, $restaurantSelect);
+//    activities.forEach(makeOption, $activitySelect);
 
     // Once you've made AJAX calls to retrieve this information,
     // call attractions.loadEnhancedAttractions in the fashion
     // exampled below in order to integrate it.
-    attractionsModule.loadEnhancedAttractions('hotels', hotels);
-    attractionsModule.loadEnhancedAttractions('restaurants', restaurants);
-    attractionsModule.loadEnhancedAttractions('activities', activities);
+//    attractionsModule.loadEnhancedAttractions('hotels', hotels);
+//    attractionsModule.loadEnhancedAttractions('restaurants', restaurants);
+//    attractionsModule.loadEnhancedAttractions('activities', activities);
 
     function makeOption(databaseAttraction) {
-        var $option = $('<option></option>') // makes a new option tag
+        const $option = $('<option></option>') // makes a new option tag
           .text(databaseAttraction.name)
           .val(databaseAttraction.id);
         this.append($option); // add the option to the specific select
@@ -42,11 +70,11 @@ $(function () {
 
     // what to do when the `+` button next to a `select` is clicked
     $optionsPanel.on('click', 'button[data-action="add"]', function () {
-        var $select = $(this).siblings('select');
-        var type = $select.data('type'); // from HTML data-type attribute
-        var id = $select.find(':selected').val();
+        const $select = $(this).siblings('select');
+        const type = $select.data('type'); // from HTML data-type attribute
+        const id = $select.find(':selected').val();
         // get associated attraction and add it to the current day in the trip
-        var attraction = attractionsModule.getByTypeAndId(type, id);
+        const attraction = attractionsModule.getByTypeAndId(type, id);
         tripModule.addToCurrent(attraction);
     });
 
