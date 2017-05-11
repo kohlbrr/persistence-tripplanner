@@ -10,18 +10,6 @@ var Day = db.define('day', {
   }
 });
 
-Day.hook('beforeValidate', (day) => {
-  // Remember to return async operations in hooks
-  return Day.findAll({
-    limit: 1,
-    order: [['number', 'DESC']]
-  })
-  .then((foundDay) => {
-    day.number = foundDay[0].number+1;
-  })
-  .catch(console.error);
-});
-
 // We will probs need a class method to remove a day and
 // decriment all days afterwards
 

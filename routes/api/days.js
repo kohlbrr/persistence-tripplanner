@@ -32,7 +32,7 @@ router.get('/:id', (req, res, next) => {
 
 // Create (POST) new day
 router.post('/', (req, res, next) => {
-  Days.create({})
+  Days.create({number: req.body.value})
   .then((day) => {
     res.send(day);
   })
@@ -49,6 +49,40 @@ router.put('/:id', (req, res, next) => {
 
 });
 
+// Hotel by id
+router.get('/:id/hotel', (req, res, next) => {
+  Days.findOne({
+    where: {
+      id: req.params.id
+    },
+    include: [{
+      model: Hotel
+    }]
+  })
+  .then((day) => {
+    res.send(day.hotel);
+  })
+  .catch(next);
+});
+
+router.post('/:id/hotel/:hotelId', (req, res, next) => {
+  Days.findOne({
+    where: {
+      id: +req.params.id
+    }
+  })
+  .then((day) => {
+    return day.setHotel(+req.params.hotelId);
+  })
+  .then((day) => {
+    return day.getHotel();
+  })
+  .then((hotel) => {
+    res.send(hotel);
+  })
+  .catch(next);
+});
+
 // Restaurants based on id
 router.get('/:id/restaurants', (req, res, next) => {
   Days.findOne({
@@ -61,6 +95,21 @@ router.get('/:id/restaurants', (req, res, next) => {
   })
   .then((day) => {
     res.send(day.restaurants);
+  })
+  .catch(next);
+});
+
+router.post('/:id/restaurant/:restaurantId', (req, res, next) => {
+  Days.findOne({
+    where: {
+      id: req.params.id
+    }
+  })
+  .then((day) => {
+    return day.addRestaurant(req.params.restaurantId);
+  })
+  .then(() => {
+    res.sendStatus(201);
   })
   .catch(next);
 });
@@ -81,34 +130,6 @@ router.get('/:id/activities', (req, res, next) => {
   .catch(next);
 });
 
-// Hotel by id
-router.get('/:id/hotel', (req, res, next) => {
-  Days.findOne({
-    where: {
-      id: req.params.id
-    },
-    include: [{
-      model: Hotel
-    }]
-  })
-  .then((day) => {
-    res.send(day.hotel);
-  })
-  .catch(next);
-});
-
-router.post('/:id/restaurant/:restaurantId', (req, res, next) => {
-  Days.findOne({
-    where: {
-      id: req.params.id
-    }
-  })
-  .then((day) => {
-    day.addRestaurants([req.params.restaurantId]);
-  })
-  .catch(next);
-});
-
 router.post('/:id/activity/:activityId', (req, res, next) => {
   Days.findOne({
     where: {
@@ -116,21 +137,11 @@ router.post('/:id/activity/:activityId', (req, res, next) => {
     }
   })
   .then((day) => {
-    day.addActivities([req.params.activityId]);
+    day.addActivities([+req.params.activityId]);
   })
   .catch(next);
 });
 
-router.post('/:id/hotel/:hotelId', (req, res, next) => {
-  Days.findOne({
-    where: {
-      id: req.params.id
-    }
-  })
-  .then((day) => {
-    day.setHotel([req.params.hotelId]);
-  })
-  .catch(next);
-});
+
 
 module.exports = router;
