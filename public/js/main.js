@@ -1,4 +1,5 @@
 'use strict';
 /* global $ tripModule */
 
-$(tripModule.load);
+//$(tripModule.load);
+

@@ -17,7 +17,7 @@ $(function () {
     const $restaurantSelect = $optionsPanel.find('#restaurant-choices');
     const $activitySelect = $optionsPanel.find('#activity-choices');
 
-    const getAttractions = function(type) {
+    const getDbData = function(type) {
       return $.ajax({
         method: 'GET',
         url: `/api/${type}`
@@ -25,19 +25,25 @@ $(function () {
     }
     
     Promise.all([
-      getAttractions('hotels'),
-      getAttractions('restaurants'),
-      getAttractions('activities')
+      getDbData('hotels'),
+      getDbData('restaurants'),
+      getDbData('activities'),
+      getDbData('days')
     ])
-    .then((attractions) => {
-      const hotels = attractions[0];
-      const restaurants = attractions[1];
-      const activities = attractions[2];
+    .then((dbData) => {
+      const hotels = dbData[0];
+      const restaurants = dbData[1];
+      const activities = dbData[2];
+      const days = dbData[3];
 
       // Render that shit
       hotels.forEach(makeOption, $hotelSelect);
       restaurants.forEach(makeOption, $restaurantSelect);
       activities.forEach(makeOption, $activitySelect);
+      days.forEach((day) => {
+        console.log(day);
+        dayModule.create(day);
+      })
 
       attractionsModule.loadEnhancedAttractions('hotels', hotels);
       attractionsModule.loadEnhancedAttractions('restaurants', restaurants);

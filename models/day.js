@@ -11,15 +11,13 @@ var Day = db.define('day', {
 });
 
 Day.hook('beforeValidate', (day) => {
-  Day.findAll({
+  // Remember to return async operations in hooks
+  return Day.findAll({
     limit: 1,
     order: [['number', 'DESC']]
   })
   .then((foundDay) => {
-    // oh fuck how do we do this
-    console.log(day);
-    day.setDataValue('number', foundDay[0].number+1);
-    console.log(day.number)
+    day.number = foundDay[0].number+1;
   })
   .catch(console.error);
 });
